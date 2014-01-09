@@ -1,0 +1,28 @@
+@(users:List[User], currentUser:Option[User])
+
+@layouts.user("index", currentUser){
+<h2>用户列表</h2>
+<table class="table">
+    <thead>
+    <th>ID</th>
+    <th>用户名</th>
+    <th>邮箱</th>
+    <th>SVN帐号</th>
+    <th>操作</th>
+    </thead>
+    <tbody>
+    @users.map{ user =>
+    <tr>
+        <td>@user.id</td>
+        <td>@user.username</td>
+        <td>@user.email</td>
+        <td>@user.svnUsername</td>
+        <td>
+            <a href="/user/edit/@user.id" class="btn btn-success">编辑</i></a>&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="/user/delete/@user.id" onclick="return confirm('你确定要删除此用户吗?')" class="btn btn-danger">删除</a>
+        </td>
+    </tr>
+    }
+    </tbody>
+</table>
+}

@@ -1,0 +1,19 @@
+@(rollFiles:List[(String, Long, Long)])
+<table class="table">
+    <thead>
+    <tr>
+        <td>文件</td>
+        <td>同步版本</td>
+        <td>回滚版本</td>
+    </tr>
+    </thead>
+    <tbody>
+    @rollFiles.map{ f =>
+    <tr>
+        <td>@f._1</td>
+        <td>@f._2</td>
+        <td><span class="label label-important">@f._3</span></td>
+    </tr>
+    }
+    </tbody>
+</table>

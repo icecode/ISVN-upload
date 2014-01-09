@@ -1,0 +1,51 @@
+@(server:UploadServer, currentUser:Option[User])
+                <fieldset>
+                    <div class="control-group">
+                        <label class="control-label">上传类型：</label>
+                        <div class="controls">
+                            <input type="radio" name="uploadType" value="ftp" />ftp&nbsp;&nbsp;<input checked="checked" type="radio"   name="uploadType" value="rsync" />rsync
+                        </div>
+                    </div>
+                    <div class="control-group uptype-ftp hide">
+                        <label class="control-label">FTP地址：</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" value="@server.ftpAddress" name="ftpAddress" />
+                        </div>
+                    </div>
+                    <div class="control-group uptype-ftp hide">
+                        <label class="control-label">FTP端口：</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" name="ftpPort" value="@server.ftpPort" />
+                        </div>
+                    </div>
+                    <div class="control-group uptype-ftp hide">
+                        <label class="control-label">FTP用户名：</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" name="ftpUsername" value="@server.ftpUsername" />
+                        </div>
+                    </div>
+                    <div class="control-group uptype-ftp hide">
+                        <label class="control-label">FTP密码：</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" name="ftpPassword" value="@server.ftpPassword" />
+                        </div>
+                    </div>
+                    <div class="control-group uptype-ftp hide">
+                        <label class="control-label">项目根目录：</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" name="ftpRootDir" value="@server.ftpRootDir" /><br />例如：/ftproot/app才是网站的目录  就可以填写ftproot/app
+                        </div>
+                    </div>
+                    <div class="control-group uptype-rsync">
+                        <label class="control-label">RSYNC地址：</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" name="rsyncAddress" value="@server.rsyncAddress"  />
+                        </div>
+                    </div>
+                    <div class="control-group uptype-rsync">
+                        <label class="control-label">RSYNC端口：</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" name="rsyncPort" value="@server.rsyncPort"  />
+                        </div>
+                    </div>
+                </fieldset>

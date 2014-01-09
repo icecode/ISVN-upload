@@ -1,0 +1,173 @@
+@(uploadServers:List[UploadServer], pid:Long, currentUser:Option[User])
+
+@layouts.project("index", currentUser){
+<a class="btn btn-primary" data-toggle="modal" href="#showAddServerWarp"><i class="icon-upload icon-white"></i>添加新上传服务器</a>
+<div style="height:10px"></div>
+@uploadServers.map{ server =>
+<table width="100%" border="0" class="table" id="serverRow@server.id" style="border-top:1px solid #FF0000">
+    <tbody>
+    <tr>
+        <td width="34%" align="right" style="border-top:2px solid #0088CC">上传类型：</td>
+        <td width="66%" align="left" style="border-top:2px solid #0088CC">&nbsp;@server.uploadType</td>
+    </tr>
+    @if(server.uploadType == UploadServer.FTP){
+    <tr>
+        <td align="right">FTP地址：</td>
+        <td align="left">@server.ftpAddress</td>
+    </tr>
+    <tr>
+        <td align="right">FTP端口：</td>
+        <td align="left">@server.ftpPort</td>
+    </tr>
+
+    <tr>
+        <td align="right">FTP用户名：</td>
+        <td align="left">@server.ftpUsername</td>
+    </tr>
+
+    <tr>
+        <td align="right">FTP密码：</td>
+        <td align="left">@server.ftpUsername</td>
+    </tr>
+
+    <tr>
+        <td align="right">项目根目录：</td>
+        <td align="left">@server.ftpRootDir</td>
+    </tr>
+    }
+    @if(server.uploadType == UploadServer.RSYNC){
+    <tr>
+        <td align="right">RSYNC地址：</td>
+        <td align="left">@server.rsyncAddress</td>
+    </tr>
+    <tr>
+        <td align="right">RSYNC端口：</td>
+        <td align="left">@server.rsyncPort</td>
+    </tr>
+    }
+    <tr>
+        <td width="34%" colspan="2" align="right"><a class="btn btn-danger delete-upload-server" sid="@server.id">删除</a> <a data-toggle="modal" href="#showEditServerWarp" sid="@server.id" class="btn btn-info edit-upload-server">编辑</a></td>
+    </tr>
+    </tbody></table>
+}
+<div class="modal hide fade" id="showAddServerWarp">
+    <form action="/project/server/add/@pid" method="post" class="form-horizontal" style="font-size:12px">
+    <div class="modal-header">
+        <a class="close"  data-dismiss="modal" href="#">×</a>
+        <h3>添加新服务器</h3>
+    </div>
+    <div class="modal-body">
+        <div id="showCommitCodeWarp">
+                <fieldset>
+                    <div class="control-group">
+                        <label class="control-label">上传类型：</label>
+                        <div class="controls">
+                            <input type="radio" name="uploadType" value="ftp" />ftp&nbsp;&nbsp;<input checked="checked" type="radio"   name="uploadType" value="rsync" />rsync
+                        </div>
+                    </div>
+                    <div class="control-group uptype-ftp hide">
+                        <label class="control-label">FTP地址：</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" name="ftpAddress" />
+                        </div>
+                    </div>
+                    <div class="control-group uptype-ftp hide">
+                        <label class="control-label">FTP端口：</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" name="ftpPort" />
+                        </div>
+                    </div>
+                    <div class="control-group uptype-ftp hide">
+                        <label class="control-label">FTP用户名：</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" name="ftpUsername" />
+                        </div>
+                    </div>
+                    <div class="control-group uptype-ftp hide">
+                        <label class="control-label">FTP密码：</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" name="ftpPassword" />
+                        </div>
+                    </div>
+                    <div class="control-group uptype-ftp hide">
+                        <label class="control-label">项目根目录：</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" name="ftpRootDir" /><br />例如：/ftproot/app才是网站的目录  就可以填写ftproot/app
+                        </div>
+                    </div>
+                    <div class="control-group uptype-rsync">
+                        <label class="control-label">RSYNC地址：</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" name="rsyncAddress" />
+                        </div>
+                    </div>
+                    <div class="control-group uptype-rsync">
+                        <label class="control-label">RSYNC端口：</label>
+                        <div class="controls">
+                            <input type="text" class="input-xlarge" name="rsyncPort"  />
+                        </div>
+                    </div>
+                </fieldset>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <input type="button" data-dismiss="modal"  class="btn" value="取消" />
+        <input type="submit"  class="btn btn-primary" value="确认保存" />
+        <div style="clear:both"></div>
+    </div>
+    </form>
+</div>
+<div class="modal hide fade" id="showEditServerWarp">
+    <form id="editFormAction" action="/project/server/add/@pid" method="post" class="form-horizontal" style="font-size:12px">
+        <div class="modal-header">
+            <a class="close"  data-dismiss="modal" href="#">×</a>
+            <h3>编辑服务器</h3>
+        </div>
+        <div class="modal-body">
+            <div id="editServerContent">
+
+            </div>
+        </div>
+        <div class="modal-footer">
+            <input type="button" data-dismiss="modal"  class="btn" value="取消" />
+            <input type="submit"  class="btn btn-primary" value="确认修改" />
+            <div style="clear:both"></div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+var pid = @pid;
+
+$(function(){
+    $(":radio[name='uploadType']").live('click', function(){
+        $(".uptype-"+$(this).val()).show();
+        if($(this).val() == 'ftp'){
+            $(".uptype-rsync").hide();
+        }else{
+            $(".uptype-ftp").hide();
+        }
+    });
+
+    $(".delete-upload-server").click(function(data){
+      var sid = $(this).attr('sid');
+      if(confirm("你确定不是要删除么？")){
+        $.get("/project/server/delete/" + sid, function(){
+          if(data == 'error'){
+            alert("删除失败，请联系管理员!");
+          }else{
+            $("#serverRow"+sid).remove();
+          }
+        });
+      }
+    });
+
+    $(".edit-upload-server").click(function(data){
+        var sid = $(this).attr('sid');
+      $("#editFormAction").attr('action', '/project/server/edit/'+sid);
+      $.get("/project/server/edit/" + sid, function(data){
+        $("#editServerContent").html(data);
+      });
+    });
+});
+</script>
+}

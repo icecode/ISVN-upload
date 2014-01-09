@@ -1,0 +1,26 @@
+@(projects:List[Project], currentUser:Option[User])
+
+@layouts.project("index", currentUser){
+<h2>项目列表</h2>
+<table class="table">
+    <thead>
+    <th>项目名称</th>
+    <th>SVN地址</th>
+    <th>SVN帐号</th>
+    <th>操作</th>
+    </thead>
+    <tbody>
+    @projects.map{ p =>
+    <tr>
+        <td>@p.name</td>
+        <td>@p.svnAddress</td>
+        <td>@p.svnUsername</td>
+        <td>&nbsp;
+            <a href="/project/server/add/@p.id" class="btn btn-info">上传服务器</a>&nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="/project/edit/@p.id" class="btn btn-success">编辑</a>&nbsp;&nbsp;&nbsp;&nbsp;
+        </td>
+    </tr>
+    }
+    </tbody>
+</table>
+}

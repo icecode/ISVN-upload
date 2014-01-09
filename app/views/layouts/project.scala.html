@@ -1,0 +1,17 @@
+@(curtab:String, currentUser:Option[User])(rightContent:Html)
+@layouts.default(currentUser, "project"){
+<div class="container">
+    <div class="row">
+    <div class="span3 bs-docs-sidebar">
+        <ul class="nav nav-list bs-docs-sidenav affix">
+            @List(("项目列表","/project", "index"),("添加新项目", "/project/post", "post")).map{ case (v, u, t) =>
+            <li @if(t == curtab){ class="active" }><a href="@u"><i class="icon-chevron-right"></i>@v</a></li>
+            }
+        </ul>
+    </div>
+    <div class="span9" style="margin-left:0px; padding-top:20px;">
+        @rightContent
+    </div>
+   </div>
+</div>
+}

@@ -1,0 +1,42 @@
+@(cu:User, currentUser:Option[User])
+@layouts.user("post", currentUser){
+<form action="/user/edit/@cu.id" method="post" class="form-horizontal">
+    <fieldset>
+        <legend>添加管理员</legend>
+        <div class="control-group">
+            <label class="control-label">用户名：</label>
+            <div class="controls">
+                <input type="text" value="@cu.username" class="input-xlarge" name="username" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">密码：</label>
+            <div class="controls">
+                <input type="text" class="input-xlarge" name="password" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">邮箱：</label>
+            <div class="controls">
+                <input type="text" value="@cu.email" class="input-xlarge" name="email" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">SVN帐号：</label>
+            <div class="controls">
+                <input type="text" value="@cu.svnUsername" class="input-xlarge" name="svnUsername" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">SVN密码：</label>
+            <div class="controls">
+                <input type="text" class="input-xlarge" value="@cu.svnPassword" name="svnPassword" />
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="submitDemand">提交</button>
+            <button type="button" class="btn">取消</button>
+        </div>
+    </fieldset>
+</form>
+}

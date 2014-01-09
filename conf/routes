@@ -1,0 +1,50 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET     /                           controllers.Application.index()
+POST    /login                      controllers.Application.login()
+GET     /logout                     controllers.Application.logout()
+GET     /update.log                 controllers.Application.updateLog()
+
+GET     /user                       controllers.UserApplication.index()
+GET     /user/post                  controllers.UserApplication.post()
+POST    /user/post                  controllers.UserApplication.post()
+GET     /user/delete/:uid           controllers.UserApplication.delete(uid:Long)
+GET     /user/edit/:uid             controllers.UserApplication.edit(uid:Long)
+POST    /user/edit/:uid             controllers.UserApplication.edit(uid:Long)
+
+GET     /setting/project            controllers.SettingApplication.project()
+POST    /setting/project            controllers.SettingApplication.project()
+
+GET     /svn/checklog/:pid/:uid/:day               controllers.SvnApplication.checkout(pid:Long, uid:Long, day:Int)
+# demand
+
+GET     /project                    controllers.ProjectApplication.index()
+GET     /project/post               controllers.ProjectApplication.post()
+POST    /project/post               controllers.ProjectApplication.post()
+GET     /project/edit/:pid          controllers.ProjectApplication.edit(pid:Long)
+POST    /project/edit/:pid          controllers.ProjectApplication.edit(pid:Long)
+GET     /project/delete/:pid        controllers.ProjectApplication.delete(pid:Long)
+GET     /project/server/add/:pid     controllers.ProjectApplication.addServer(pid:Long)
+POST    /project/server/add/:pid     controllers.ProjectApplication.addServer(pid:Long)
+GET     /project/server/edit/:sid     controllers.ProjectApplication.editServer(sid:Long)
+POST    /project/server/edit/:sid     controllers.ProjectApplication.editServer(sid:Long)
+GET     /project/server/delete/:pid  controllers.ProjectApplication.deleteServer(pid:Long)
+GET     /demand/post                controllers.DemandApplication.post()
+POST    /demand/post                controllers.DemandApplication.post()
+GET     /demand/upload/:did         controllers.DemandApplication.upload(did:Long)
+GET     /demand/commit/:did         controllers.DemandApplication.commit(did:Long)
+GET     /demand/show/:did           controllers.DemandApplication.show(did:Long)
+GET     /demand/delete/:did         controllers.DemandApplication.delete(did:Long)
+GET     /demand/rollback/:did       controllers.DemandApplication.rollback(did:Long)
+POST    /demand/rollback/:did       controllers.DemandApplication.rollback(did:Long)
+GET     /demand/:page               controllers.DemandApplication.index(page:Int)
+GET     /demand                     controllers.DemandApplication.index(page:Int = 1)
+
+
+GET     /message                    controllers.MessageApplication.index()
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /static/*file               controllers.Assets.at(path="/public/static", file)

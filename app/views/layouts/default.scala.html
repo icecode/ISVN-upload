@@ -1,0 +1,132 @@
+@(currentUser:Option[User], nav:String)(content:Html)
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>恺英网络-平台组开发上线系统</title>
+    <link type="text/css" href="/static/css/bootstrap.css" rel="stylesheet" />
+    <link type="text/css" href="/static/css/bootstrap-responsive.css" rel="stylesheet" />
+    <link type="text/css" href="/static/css/doc.css" rel="stylesheet" />
+    <link type="text/css" href="/static/css/bootstrap-googlestyle.css" rel="stylesheet" />
+</head>
+<body>
+<script type="text/javascript" src="/static/js/jquery.js"></script>
+<script type="text/javascript" src="/static/js/bootstrap-modal.js"></script>
+<script type="text/javascript" src="/static/js/bootstrap-dropdown.js"></script>
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar">222</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="brand" href="/demand">恺英网络-平台组开发上线系统</a>
+            @currentUser match{
+              case Some(u) => {
+                <div class="nav-collapse collapse">
+                    <ul class="nav">
+                        <li @if(nav == "demand"){class="active"}>
+                            <a href="/demand">上线单</a>
+                        </li>
+                        @if(List("林晨光", "admin", "叶悠舟").contains(currentUser.get.username)){
+                        <li @if(nav == "project"){class="active"}>
+                            <a href="/project">项目管理</a>
+                        </li>
+                        <li @if(nav == "user"){class="active"}>
+                            <a href="/user">用户管理</a>
+                        </li>
+                        }
+                    </ul>
+                    <ul class="nav pull-right">
+                        <li class="dropdown">
+                            <a data-toggle="dropdown" class="dropdown-toggle" href="#">@u.username<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="/setting/project">个人设置</a></li>
+                                <li class="divider"></li>
+                                <li><a href="/logout"><b class="icon-off"></b>退出</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+              }
+              case _ => {}
+            }
+        </div>
+    </div>
+</div>
+@content
+<script src="/static/js/noty/jquery.noty.js"></script>
+<script src="/static/js/noty/layouts/bottom.js"></script>
+<script src="/static/js/noty/layouts/bottomCenter.js"></script>
+<script src="/static/js/noty/layouts/bottomLeft.js"></script>
+<script src="/static/js/noty/layouts/bottomRight.js"></script>
+<script src="/static/js/noty/layouts/center.js"></script>
+<script src="/static/js/noty/layouts/centerLeft.js"></script>
+<script src="/static/js/noty/layouts/centerRight.js"></script>
+<script src="/static/js/noty/layouts/inline.js"></script>
+<script src="/static/js/noty/layouts/top.js"></script>
+<script src="/static/js/noty/layouts/topCenter.js"></script>
+<script src="/static/js/noty/layouts/topLeft.js"></script>
+<script src="/static/js/noty/layouts/topRight.js"></script>
+<script src="/static/js/noty/themes/default.js"></script>
+<script type="text/javascript">
+@currentUser match{
+  case Some(u) => {
+    if(navigator.userAgent.indexOf("Chrome") > 0){
+    var websocket = new WebSocket("ws://ds2.xy.com:8090/message");
+    websocket.onopen = function(evt) { };
+    websocket.onclose = function(evt) { };
+    websocket.onmessage = function(evt) {
+    var data = eval('('+evt.data+')');
+    switch(data.event){
+    case 'uploadSuccess': uploadSuccessHandler(data);break;
+    case 'uploadError': uploadErrorHandler(data);break;
+    case 'rollbackSuccess': rollbackSuccessHandler(data);break;
+    case 'rollbackError': rollbackErrorHandler(data); break;
+    case 'newDemand': newDemandHandler(data);break;
+    case 'notice': showNoticeHandler(data);break;
+    default:break;
+    }
+    };
+    websocket.onerror = function(evt) {};
+    }
+
+    function uploadSuccessHandler(data){
+        noty({text: data.msg, type:'success', layout:'bottomRight'});
+        $("#demandLeftStatus"+data.did).attr('class', 'label label-success').html("已同步");
+        $("#demandProgress"+data.did).hide();
+    }
+
+    function uploadErrorHandler(data){
+        noty({text: data.msg, type:'error', layout:'bottomRight'});
+        $("#demandLeftStatus"+data.did).attr('class', 'label label-important').html("同步失败");
+        $("#demandProgress"+data.did).hide();
+    }
+
+    function rollbackSuccessHandler(data){
+        noty({text: data.msg, type:'success', layout:'bottomRight'});
+        $("#demandLeftStatus"+data.did).attr('class', 'label label-info').html("回滚成功");
+        $("#demandProgress"+data.did).hide();
+    }
+
+    function rollbackErrorHandler(data){
+        noty({text: data.msg, type:'error', layout:'bottomRight'});
+        $("#demandLeftStatus"+data.did).attr('class', 'label label-important').html("回滚失败");
+        $("#demandProgress"+data.did).hide();
+    }
+
+    function newDemandHandler(data){
+        noty({text: data.msg, type:'information', layout:'bottomRight'});
+        document.location.href = document.location.href;
+    }
+
+    function showNoticeHandler(data){
+        noty({text: data.msg, type:'information', layout:'bottomRight'});
+    }
+  }
+  case _ => {}
+}
+</script>
+</body>
+</html>

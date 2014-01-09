@@ -1,0 +1,17 @@
+@(demand:Demand)
+<table class="table">
+    <thead>
+    <tr>
+        <td>文件</td>
+        <td>版本</td>
+    </tr>
+    </thead>
+    <tbody>
+    @demand.uploadFiles.map{ f =>
+    <tr>
+        <td>@f.uploadFile</td>
+        <td>@f.uploadVersion</td>
+    </tr>
+    }
+    </tbody>
+</table>

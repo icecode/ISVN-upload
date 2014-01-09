@@ -1,0 +1,41 @@
+@(myProject:List[Project], allProject:List[Project], currentUser:Option[User])
+@layouts.setting("project", currentUser){
+<h4>设置我负责的项目</h4>
+<form action="/setting/project" method="post" class="form-horizontal" id="userProjectForm">
+    <table class="table">
+        <tbody>
+        <tr>
+            <td>
+            @allProject.map{ p =>
+                <div style="width:160px; float:left; height:30px;"><label class="checkbox"><input id="projectCheckBox@p.id" class="id-project" type="checkbox"  value="@p.id">@p.name</label></div>
+            }
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="form-actions">
+        <input type="hidden" id="user_perm_v" name="dp" />
+        <input type="hidden" id="develProjects" name="develProjects" />
+        <input type="button" class="btn btn-primary" id="submitPerm" value="设置" /> <input type="reset" class="btn" value="取消" />
+    </div>
+</form>
+<script type="text/javascript">
+var mp = [@myProject.map( _.id).mkString(",")];
+$(function(){
+  for(var i = 0, c = mp.length; i < c; i++){
+    $("#projectCheckBox"+mp[i]).attr('checked', 'checked');
+  }
+  $("#submitPerm").click(function(){
+    var cp = [];
+    $.each($(".id-project"), function(){
+
+      if($(this).attr('checked') == 'checked'){
+        cp.push($(this).val());
+      }
+    });
+    $("#develProjects").val(cp.join(","));
+    $("#userProjectForm").submit();
+  });
+});
+</script>
+}

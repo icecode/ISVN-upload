@@ -1,0 +1,36 @@
+@(project:Project, currentUser:Option[User])
+@layouts.project("post", currentUser){
+<form action="/project/edit/@project.id" method="post" class="form-horizontal">
+    <fieldset>
+        <legend>编辑项目</legend>
+        <div class="control-group">
+            <label class="control-label">项目名称：</label>
+            <div class="controls">
+                <input type="text" class="input-xlarge" value="@project.name" name="name" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">SVN地址：</label>
+            <div class="controls">
+                <input type="text" class="input-xlarge" value="@project.svnAddress" name="svnAddress" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">SVN帐号：</label>
+            <div class="controls">
+                <input type="text" class="input-xlarge" value="@project.svnUsername" name="svnUsername" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">SVN密码：</label>
+            <div class="controls">
+                <input type="text" class="input-xlarge" value="@project.svnPassword" name="svnPassword" />
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="submitDemand">提交</button>
+            <button type="button" class="btn">取消</button>
+        </div>
+    </fieldset>
+</form>
+}

@@ -1,0 +1,191 @@
+@(developers:Seq[User], projects:List[Project], currentUser:Option[User])
+@layouts.demand("post", currentUser){
+<style>
+.form-horizontal label, .form-horizontal input, .form-horizontal button, .form-horizontal select, .form-horizontal textarea{ font-size:12px;}
+</style>
+    <h3>添加上线单</h3>
+    <form class="form-horizontal" method="post" action="/demand/post">
+        <input type="hidden" value="" name="uploadFiles" id="uploadFiles" />
+        <div class="control-group">
+            <label class="control-label">上线描述：</label>
+            <div class="controls docs-input-sizes">
+                <input  type="text" name="title" class="input-xlarge" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">上线项目：</label>
+            <div class="controls">
+                <select name="projectId" id="project_id">
+                    <option value="0">请选择项目</option>
+                    @projects.map{ p =>
+                    <option value="@p.id">@p.name</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="control-group">
+            <label for="multiSelect" class="control-label">上传的文件：</label>
+            <div class="controls">
+                <ul class="nav nav-pills" id="selectChangeFile" style="font-size:12px;">
+                    <li class="active" d="1"><a href="javascript:;">最近1天</a></li>
+                    <li d="3"><a href="javascript:;">最近3天</a></li>
+                    <li d="5"><a href="javascript:;">最近5天</a></li>
+                    <li d="7"><a href="javascript:;">最近7天</a></li>
+                </ul>
+                <div style="font-size:12px; height:48px">
+                    <div class="" style="float:left; padding-right:7px;">
+                        <input type="radio" checked="checked" value="@currentUser.get.id" name="filterOwn" class="filter-own" />仅自己&nbsp;&nbsp;
+                    </div>
+                    <div class="" style="float:left; padding-right:7px;">
+                        <input type="radio" value="other" name="filterOwn" class="filter-own"  />他人&nbsp;&nbsp;
+                    </div>
+                    @developers.map{ u =>
+                    <div class=" hide other-svn-user" style="float:left; padding-right:7px;">
+                        <input type="radio" value="@u.id" name="filterOwn" class="other-user filter-own"  />@u.username&nbsp;&nbsp;
+                    </div>
+                    }
+                    <div class="clear"></div>
+                </div>
+                <table>
+                    <tr>
+                        <td valign="top">
+                            <select id="changeList"  multiple="multiple" style="width:500px; height:200px;"></select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding:10px;">
+                            <button class="btn btn-info" id="addUploadFileBtn"><span class="icon-arrow-down icon-white"></span></button>
+                            <button class="btn btn-warning" id="delUploadFileBtn"><span class="icon-arrow-up icon-white"></span></button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td valign="top">
+                            <select id="selchangeList" multiple="multiple" style="width:500px; height:200px;"></select>
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="submitDemand">提交</button>
+            <button type="button" class="btn">取消</button>
+        </div>
+    </form>
+<script type="text/javascript">
+
+var g_changefile = [];
+var g_isFisrst = 1;
+$(function(){
+    $('#serchLog').modal({
+    keyboard: false
+});
+
+
+$("#selectChangeFile li").click(function(){
+    $(this).addClass('active').siblings().removeClass('active');
+    var day = $(this).attr('d');
+    var user = $(":radio[name='filterOwn'][checked='checked']").val();
+    $("#serchLog").modal('show');
+
+    if(parseInt($("#project_id").val()) === 0){
+      return;
+    }
+
+    var requestUrl = "/svn/checklog/"+ $("#project_id").val() + "/" + user + "/" + day;
+    $.get(requestUrl,{},function(data){
+    ophtml = '';
+    if(data.status == "success"){
+    var splitList = data.list.split("|")
+    for(var i = 0, c = splitList.length; i < c; i++){
+      ophtml += '<option value="'+splitList[i]+'">'+splitList[i]+'</option>';
+    }
+    }
+    $("#changeList").html(ophtml);
+    $("#serchLog").modal('hide');
+    },"json");
+});
+
+$(".filter-own").click(function(){
+    if($(this).val() == 'other'){
+        $(".other-svn-user").removeClass('hide');
+    }else{
+        $("#selectChangeFile li[class='active']").removeClass('active').click();
+    }
+});
+$("#project_id").change(function(){
+    $("#selectChangeFile li[class='active']").removeClass('active').click();
+});
+$("#addUploadFileBtn").click(function(){
+    var addchange = [];
+    $.each($("#changeList option"),function(){
+        if($(this).attr('selected') == 'selected'){
+        addchange.push($(this).val());
+    }
+    });
+    for(var i = 0, cc = addchange.length; i < cc; i++){
+        var isExists = 0;
+        $.each($("#selchangeList option"),function(){
+        if($(this).val() == addchange[i]){
+        isExists = 1;
+        }
+    });
+    if(!isExists){
+        $("#selchangeList").append('<option value="'+addchange[i]+'">'+addchange[i]+'</option>');
+    }
+    }
+    return false;
+});
+$("#changeList").dblclick(function(){
+    $("#addUploadFileBtn").click();
+});
+
+$("#delUploadFileBtn").click(function(){
+    var deletefile = [];
+    $.each($("#selchangeList option"),function(){
+    if($(this).attr('selected') == 'selected'){
+    $(this).remove();
+    }
+    });
+    return false;
+});
+    $("#selchangeList").dblclick(function(){
+    $("#delUploadFileBtn").click();
+    });
+$("#submitDemand").click(function(){
+    var cf = [];
+    if(parseInt($("#selchangeList option").size()) < 1){
+        alert("未选择任何文件，不能上传");
+        return;
+    }
+    $.each($("#selchangeList option"),function(){
+        cf.push($(this).val());
+    });
+    $("#uploadFiles").val(cf.join('|'));
+    $("#submitDemandForm").submit();
+});
+    $("#changeFileVersion").click(function(){
+    var v = ($("#selchangeList").val()+"").split(",");
+    $.get("/api/history",{pid:$("#project_id").val(),limit: 50,file:v[0]},function(data){
+    var ophtml = '';
+    if(parseInt(data.errno) === 0){
+    for(var i = 0, j = data.ret.length; i < j; i++){
+    ophtml += '<option value="'+data.ret[i]+'">'+data.ret[i]+'</option>';
+    }
+    }
+    $("#selChangeVersion").html(ophtml);
+    },"json");
+    });
+    $("#selChangeVersion").dblclick(function(){
+    var cv = $(this).val()+"";
+    var v = $("#selchangeList").val()+"";
+    var nv = v.split(",")[0]+","+cv.split(",")[0];
+    $.each($("#selchangeList option"),function(){
+    if($(this).val() == v){
+    $(this).val(nv).text(nv);
+    }
+    });
+    });
+    });
+</script>
+}

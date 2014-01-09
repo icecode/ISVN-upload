@@ -1,0 +1,60 @@
+package controllers
+
+import play.api._
+import play.api.mvc._
+import play.api.libs.json._
+import org.tmatesoft.svn.core.wc.{SVNWCUtil}
+import org.tmatesoft.svn.core.io.SVNRepositoryFactory
+import org.tmatesoft.svn.core.{SVNLogEntryPath, SVNLogEntry, SVNURL}
+
+import models._
+
+/**
+ * Created with IntelliJ IDEA.
+ * User: bing19880122@gmail.com
+ * Date: 13-1-7
+ * Time: 下午1:57
+ */
+object SvnApplication extends BaseController{
+
+
+  def checkout(projectId:Long, uid:Long, day:Int) = Action{
+    val endDay = System.currentTimeMillis() - (day * 24 * 3600 *1000)
+    val project = Project.findById(projectId).get
+    val user    = User.findById(uid).get
+    val changeFiles = new scala.collection.mutable.HashMap[String, Long]
+    try{
+      val repository = SVNRepositoryFactory.create(SVNURL.parseURIEncoded(project.svnAddress))
+      val authManager = SVNWCUtil.createDefaultAuthenticationManager(project.svnUsername, project.svnPassword)
+      repository.setAuthenticationManager(authManager)
+	  /**
+	   * 获取最近1000个版本的提交信息
+	   */
+      val maxVersion = repository.getDatedRevision(new java.util.Date())
+      val logEntries = repository.log(Array(""), null, maxVersion - 1000, -1, true, true)
+      val repositoryRoot = repository.getRepositoryRoot(true)
+      import scala.collection.JavaConversions._
+      for (log <- logEntries.iterator()){
+        val logAs = log.asInstanceOf[SVNLogEntry]
+        if (logAs.getDate.getTime > endDay && logAs.getAuthor == user.svnUsername){
+          for ((k, file:SVNLogEntryPath) <- logAs.getChangedPaths.iterator if file.getType != 'D'){
+            val fullPath = repositoryRoot + file.getPath
+            if (fullPath.startsWith(project.svnAddress)){
+              val revisePath = fullPath.substring(project.svnAddress.length)
+              if (!changeFiles.contains(revisePath)){
+                changeFiles.put(revisePath, logAs.getRevision)
+              }else if (changeFiles(revisePath) < logAs.getRevision){
+                changeFiles(revisePath) = logAs.getRevision
+              }
+            }
+          }
+        }
+      }
+
+      Ok("{\"status\":\"success\", \"list\":" + Json.toJson(changeFiles.map { f => f._1 + "," + f._2.toString}.toList.sortWith( _ < _ ).mkString("|")) + "}")
+    }catch{
+      case e => Ok("{\"status\":\"error\", \"msg\":" + Json.toJson(e.getMessage())+"}")
+    }
+  }
+
+}
